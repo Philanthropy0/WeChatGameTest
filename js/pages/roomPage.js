@@ -113,10 +113,17 @@ export default class RoomPage {
     const houseY = centerY - houseHeight / 2 - 20;
     const logHeight = 18;
 
-    // 绘制地面光照效果（在房子下方）
+    // 绘制地面光照效果（在房子下方，从窗户中心向下）
     const windowSize = 80;
     const windowX = houseX + houseWidth - windowSize - 30;
-    this.renderGroundLight(ctx, windowX + windowSize / 2, houseY + houseHeight);
+    const windowCenter = windowX + windowSize / 2;
+    this.renderGroundLight(ctx, windowCenter, houseY + houseHeight);
+
+    // 窗户的Y位置（与门对齐）
+    const doorWidth = 60;
+    const doorHeight = 90;
+    const doorY = houseY + houseHeight - doorHeight - 10;
+    const windowY = doorY;
 
     // 绘制三角形屋顶
     ctx.save();
@@ -156,10 +163,7 @@ export default class RoomPage {
     }
 
     // 门的位置（左侧）
-    const doorWidth = 60;
-    const doorHeight = 90;
     const doorX = houseX + 30;
-    const doorY = houseY + houseHeight - doorHeight - 10;
 
     // 绘制门
     ctx.save();
@@ -183,11 +187,6 @@ export default class RoomPage {
     ctx.lineWidth = 1;
     ctx.stroke();
     ctx.restore();
-
-    // 窗户的位置（右侧）
-    const windowSize = 80;
-    const windowX = houseX + houseWidth - windowSize - 30;
-    const windowY = doorY;
 
     // 绘制窗户内部背景
     ctx.save();
