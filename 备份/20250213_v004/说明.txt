@@ -1,0 +1,210 @@
+======================================
+v004 版本更新说明（2025-02-13）
+======================================
+
+【主要新增功能】
+1. 角色数据全局化管理
+2. 角色页面布局优化（间距调整）
+3. 所有页面可共享和修改角色数据
+
+--------------------------------------
+js/main.js - 主程序
+--------------------------------------
+
+【新增全局数据】
+```javascript
+// 全局角色数据（所有页面共享）
+this.characterData = {
+  name: '冒险者',
+  level: 1,
+  hp: 100,
+  maxHp: 100,
+  mp: 0,
+  maxMp: 100,
+  stamina: 0,
+  maxStamina: 50,
+  exp: 0,
+  maxExp: 100,
+  attack: 10,
+  defense: 5,
+  magicPower: 0
+};
+```
+
+【数据位置】
+- 添加在 constructor 中，在 fireFrame 之后
+- 在音频管理器之前
+- 所有页面实例化之前
+
+【设计理念】
+1. 集中管理：角色数据存储在 main.js，作为单一数据源
+2. 全局访问：所有页面通过 this.main.characterData 访问
+3. 实时同步：任何页面的修改立即反映到其他页面
+
+【使用示例】
+```javascript
+// 读取数据
+const hp = this.main.characterData.hp;
+
+// 修改数据（掉血）
+this.main.characterData.hp -= 10;
+
+// 修改数据（升级）
+this.main.characterData.level++;
+this.main.characterData.exp = 0;
+this.main.characterData.maxHp += 10;
+```
+
+--------------------------------------
+js/pages/characterPage.js - 角色页面
+--------------------------------------
+
+【重大变更】
+1. 移除本地 character 数据
+   - 删除了 this.character 对象定义
+   - 删除了 constructor 中的 character 初始化
+
+2. 使用全局数据
+   - renderCharacterInfo() 方法改为访问 this.main.characterData
+   - renderCharacterStats() 方法改为访问 this.main.characterData
+
+3. 布局优化
+   - 等级文本和名称的间隔：45px → 55px (boxY + 65 → boxY + 75)
+   - 等级文本和第一个条的间隔：45px → 50px (barY: 110 → 125)
+   - 四个条之间的间隔：30px → 35px (+30, +60, +90 → +35, +70, +105)
+
+【代码变更对比】
+旧代码：
+```javascript
+constructor(main) {
+  this.main = main;
+  this.character = {
+    name: '冒险者',
+    level: 1,
+    hp: 100,
+    // ...
+  };
+}
+
+renderCharacterInfo(ctx, centerX, centerY) {
+  ctx.fillText(this.character.name, ...);
+  ctx.fillText(`等级 ${this.character.level}`, ...);
+  this.renderStatBar(ctx, ..., this.character.hp, this.character.maxHp, ...);
+}
+```
+
+新代码：
+```javascript
+constructor(main) {
+  this.main = main;
+  // 不再定义 this.character
+}
+
+renderCharacterInfo(ctx, centerX, centerY) {
+  const character = this.main.characterData;
+  ctx.fillText(character.name, ...);
+  ctx.fillText(`等级 ${character.level}`, ...);
+  this.renderStatBar(ctx, ..., character.hp, character.maxHp, ...);
+}
+```
+
+--------------------------------------
+架构改进说明
+--------------------------------------
+
+【v003 的问题】
+1. 数据分散：每个页面有自己的数据副本
+2. 无法同步：战斗掉血后，角色页面仍显示旧数据
+3. 代码重复：多个页面需要相同数据时重复定义
+4. 难以维护：修改数据结构需要改多个地方
+
+【v004 的解决方案】
+1. 单一数据源：main.js 统一管理角色数据
+2. 实时同步：所有页面共享同一份数据
+3. 易于扩展：新页面直接访问 this.main.characterData
+4. 集中维护：只需在一个地方修改数据结构
+
+【数据流向】
+```
+┌─────────────┐
+│   main.js   │
+│characterData│
+└──────┬──────┘
+       │
+       ├── CharacterPage (读取显示)
+       ├── BattlePage (读取、修改掉血)
+       ├── RoomPage (读取、修改体力)
+       └── PreparePage (读取、修改装备)
+```
+
+【典型使用场景】
+1. 战斗掉血：
+   battlePage.js: this.main.characterData.hp -= 20;
+   → CharacterPage 自动显示新血量
+
+2. 升级加属性：
+   battlePage.js:
+   this.main.characterData.level++;
+   this.main.characterData.attack += 5;
+   this.main.characterData.maxHp += 20;
+   this.main.characterData.hp = this.main.characterData.maxHp;
+
+3. 休息恢复：
+   roomPage.js:
+   this.main.characterData.hp = this.main.characterData.maxHp;
+   this.main.characterData.mp = this.main.characterData.maxMp;
+   this.main.characterData.stamina = this.main.characterData.maxStamina;
+
+--------------------------------------
+布局细节
+--------------------------------------
+
+【角色面板尺寸】
+- 框体：280 x 260
+- 位置：centerY - boxHeight/2 - 140
+- 内容从 boxY + 20 开始
+
+【间距调整】
+1. 名称 → 等级：boxY + 20 → boxY + 75 (间隔 55px)
+2. 等级 → 第一条：boxY + 75 → boxY + 125 (间隔 50px)
+3. 条之间：35px 间隔
+   - 第一条：barY
+   - 第二条：barY + 35
+   - 第三条：barY + 70
+   - 第四条：barY + 105
+
+【属性条配置】
+- 宽度：220px
+- 高度：20px
+- 标签宽度：60px
+- 条形宽度：160px
+
+【角色数值配置】
+- 位置：boxY + boxHeight + 60
+- 行间距：35px
+- 字体：20px sans-serif
+
+--------------------------------------
+待实现功能
+--------------------------------------
+
+1. BattlePage - 战斗系统
+   - 使用 characterData.hp 进行战斗计算
+   - 掉血、回血逻辑
+   - 死亡判断
+
+2. RoomPage - 休息系统
+   - 使用 characterData.stamina
+   - 恢复 hp/mp/stamina
+   - 体力消耗机制
+
+3. 经验值系统
+   - 战斗获得经验
+   - 升级逻辑
+   - 属性提升
+
+4. 装备系统
+   - 装备后提升 attack/defense
+   - 装备数据存储
+
+======================================

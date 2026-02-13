@@ -1,0 +1,152 @@
+======================================
+v002 版本更新说明（2025-02-13）
+======================================
+
+【主要新增功能】
+1. 子页面切换过渡效果系统
+2. 各功能页面的底部导航栏
+3. 返回按钮的过渡效果
+
+--------------------------------------
+main.js - 中心更新
+--------------------------------------
+
+【新增变量】
+- subPageTransitionState: 'none' | 'fadeout' | 'fadein'
+  - 子页面过渡状态
+- subPageAlpha: 0-1
+  - 黑色遮罩透明度
+- targetSubPage: SUB_PAGE.xxx
+  - 目标子页面
+
+【新增方法】
+1. startSubPageTransition(targetSubPage)
+   - 启动子页面过渡
+   - 设置过渡状态为 'fadeout'
+   - 设置目标子页面
+
+2. updateSubPageTransition()
+   - 更新子页面过渡状态
+   - fadeout: 当前页面逐渐变黑
+   - fadein: 目标页面逐渐变亮
+   - 过渡速度: 0.03/帧
+
+3. renderSubPage(ctx, subPage)
+   - 渲染指定子页面
+   - 根据 subPage 参数分发渲染
+
+【修改方法】
+1. switchToSubPage(subPageName)
+   - 改为调用 startSubPageTransition()
+   - 不再直接切换 currentSubPage
+
+2. renderGamePage(ctx)
+   - 检查子页面过渡状态
+   - fadeout阶段：渲染当前页面
+   - fadein阶段：渲染目标页面
+   - 调用 renderSubPage()
+
+3. update()
+   - 添加调用 updateSubPageTransition()
+
+4. render()
+   - 添加子页面过渡黑色遮罩绘制
+
+--------------------------------------
+pages/battlePage.js - 战斗页面
+--------------------------------------
+
+【新增内容】
+1. 构造函数添加 this.SUB_PAGE = main.SUB_PAGE
+
+2. 底部导航栏（4个选项）
+   - 冒险 - action: 'adventure'
+   - 采集 - action: 'collect'
+   - 休整 - action: 'rest'
+   - 返回 - action: 'back'
+
+3. handleTouch(x, y) 方法
+   - 处理底部导航栏点击
+
+4. handleNavClick(item) 方法
+   - 处理导航按钮点击
+   - 返回按钮调用 this.main.startSubPageTransition()
+
+5. renderNavBar(ctx) 方法
+   - 绘制底部导航栏（圆角矩形背景 + 4个选项）
+
+--------------------------------------
+pages/roomPage.js - 室内页面
+--------------------------------------
+
+【新增内容】
+1. 构造函数添加 this.SUB_PAGE = main.SUB_PAGE
+
+2. 底部导航栏（4个选项）
+   - 制作 - action: 'craft'
+   - 锻炼 - action: 'exercise'
+   - 成就 - action: 'achievement'
+   - 返回 - action: 'back'
+
+3. handleTouch(x, y) 方法
+   - 处理底部导航栏点击
+
+4. handleNavClick(item) 方法
+   - 处理导航按钮点击
+   - 返回按钮调用 this.main.startSubPageTransition()
+
+5. renderNavBar(ctx) 方法
+   - 绘制底部导航栏（圆角矩形背景 + 4个选项）
+
+--------------------------------------
+pages/preparePage.js - 整备页面
+--------------------------------------
+
+【新增内容】
+1. 构造函数添加 this.SUB_PAGE = main.SUB_PAGE
+
+2. 底部导航栏（4个选项）
+   - 角色 - action: 'character'
+   - 装备 - action: 'equipment'
+   - 道具 - action: 'items'
+   - 返回 - action: 'back'
+
+3. handleTouch(x, y) 方法
+   - 处理底部导航栏点击
+
+4. handleNavClick(item) 方法
+   - 处理导航按钮点击
+   - 返回按钮调用 this.main.startSubPageTransition()
+
+5. renderNavBar(ctx) 方法
+   - 绘制底部导航栏（圆角矩形背景 + 4个选项）
+
+--------------------------------------
+过渡效果说明
+--------------------------------------
+
+从游戏主页切换到功能页：
+1. 点击导航按钮（战斗/室内/整备）
+2. 当前页面 fadeout（逐渐变黑，约0.5秒）
+3. 完全变黑时切换到目标页面
+4. 目标页面 fadein（逐渐变亮，约0.5秒）
+
+从功能页返回游戏主页：
+1. 点击返回按钮
+2. 当前页面 fadeout（逐渐变黑）
+3. 完全变黑时切换到游戏主页
+4. 游戏主页 fadein（逐渐变亮）
+
+--------------------------------------
+导航流程
+--------------------------------------
+
+游戏主页
+  ├─ 点击"战斗" → 战斗页面
+  │   └─ 点击"返回" → 游戏主页
+  ├─ 点击"室内" → 室内页面
+  │   └─ 点击"返回" → 游戏主页
+  └─ 点击"整备" → 整备页面
+      └─ 点击"返回" → 游戏主页
+
+======================================
