@@ -5,6 +5,7 @@ import Item, { ItemManager } from './item'; // 导入道具系统
 import MenuPage from './pages/menuPage';
 import GameHomePage from './pages/gameHomePage';
 import BattlePage from './pages/battlePage';
+import ScenePage from './pages/scenePage';
 import RoomPage from './pages/roomPage';
 import CharacterPage from './pages/characterPage';
 import PreparePage from './pages/preparePage';
@@ -19,9 +20,10 @@ const PAGE = {
 const SUB_PAGE = {
   GAME_HOME: 'gameHome',   // 游戏主页（带导航栏）
   BATTLE: 'battle',       // 战斗页面
-  ROOM: 'room',          // 室内页面
-  PREPARE: 'prepare',      // 整备页面
-  CHARACTER: 'character' // 角色页面
+  SCENE: 'scene',         // 场景页面
+  ROOM: 'room',            // 室内页面
+  PREPARE: 'prepare',       // 整备页面
+  CHARACTER: 'character'  // 角色页面
 };
 
 /**
@@ -84,6 +86,7 @@ export default class Main {
     this.menuPage = new MenuPage(this);
     this.gameHomePage = new GameHomePage(this);
     this.battlePage = new BattlePage(this);
+    this.scenePage = new ScenePage(this);
     this.roomPage = new RoomPage(this);
     this.preparePage = new PreparePage(this);
     this.characterPage = new CharacterPage(this);
@@ -239,6 +242,9 @@ export default class Main {
         case SUB_PAGE.BATTLE:
           handled = this.battlePage.handleTouch(x, y);
           break;
+        case SUB_PAGE.SCENE:
+          handled = this.scenePage.handleTouch(x, y);
+          break;
         case SUB_PAGE.ROOM:
           handled = this.roomPage.handleTouch(x, y);
           break;
@@ -335,6 +341,7 @@ export default class Main {
 
     // 更新室内页面光影动画
     this.roomPage.update();
+    this.scenePage.update();
 
     // 更新各个页面
     this.menuPage.update();
@@ -499,6 +506,9 @@ export default class Main {
         break;
       case SUB_PAGE.BATTLE:
         this.battlePage.render(ctx);
+        break;
+      case SUB_PAGE.SCENE:
+        this.scenePage.render(ctx);
         break;
       case SUB_PAGE.ROOM:
         this.roomPage.render(ctx);

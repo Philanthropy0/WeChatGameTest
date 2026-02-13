@@ -42,8 +42,51 @@ export default class BattlePage {
           return true;
         }
       }
+      return true;
+    }
+
+    // 检查是否点击了地图选项（仅在采集标签时）
+    if (this.currentTab === 'collect') {
+      return this.handleMapTouch(x, y);
+    }
+
+    return false;
+  }
+
+  /**
+   * 处理地图点击
+   */
+  handleMapTouch(x, y) {
+    const centerX = canvas.width / 2;
+    const optionWidth = 280;
+    const optionHeight = 80;
+    const optionGap = 12;
+    const startX = centerX - optionWidth / 2;
+    const startY = 150;
+
+    const maps = this.main.mapManager.getAllMaps();
+
+    for (let i = 0; i < maps.length; i++) {
+      const optionY = startY + i * (optionHeight + optionGap);
+
+      if (x >= startX && x < startX + optionWidth &&
+          y >= optionY && y < optionY + optionHeight) {
+        // 点击了地图选项，进入场景页面
+        const map = maps[i];
+        this.enterScene(map.id);
+        return true;
+      }
     }
     return false;
+  }
+
+  /**
+   * 进入场景页面
+   */
+  enterScene(mapId) {
+    console.log('进入场景:', mapId);
+    this.main.scenePage.setMap(mapId);
+    this.main.startSubPageTransition(this.main.SUB_PAGE.SCENE);
   }
 
   /**
