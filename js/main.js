@@ -1,5 +1,6 @@
 import './render'; // 初始化Canvas
 import AudioManager from './runtime/audio'; // 导入音频管理器
+import Item, { ItemManager } from './item'; // 导入道具系统
 import MenuPage from './pages/menuPage';
 import GameHomePage from './pages/gameHomePage';
 import BattlePage from './pages/battlePage';
@@ -58,6 +59,10 @@ export default class Main {
     this.woodCrackTimer = 0;
     this.nextWoodCrackTime = Math.random() * 300 + 180;  // 3-8秒
 
+    // 道具管理器
+    this.itemManager = new ItemManager();
+    this.initializeItems();  // 初始化初始道具
+
     // 页面过渡效果
     this.transitionState = 'none';  // 'none', 'fadeout', 'fadein'
     this.transitionAlpha = 0;  // 0-1，黑色遮罩透明度
@@ -79,6 +84,77 @@ export default class Main {
     this.characterPage = new CharacterPage(this);
 
     this.start();
+  }
+
+  /**
+   * 初始化初始道具
+   */
+  initializeItems() {
+    // 添加一些初始道具作为示例
+    const wood = new Item({
+      id: 'wood',
+      name: '木材',
+      description: '常见的建筑材料，可以从树木获取',
+      type: 'material',
+      rarity: 'common',
+      value: 1,
+      stackSize: 99,
+      currentStack: 5,
+      iconColor: '#8B4513'
+    });
+
+    const stone = new Item({
+      id: 'stone',
+      name: '石头',
+      description: '坚硬的石头，可用于建筑',
+      type: 'material',
+      rarity: 'common',
+      value: 2,
+      stackSize: 99,
+      currentStack: 3,
+      iconColor: '#808080'
+    });
+
+    const herb = new Item({
+      id: 'herb',
+      name: '药草',
+      description: '恢复少量生命值的草药',
+      type: 'consumable',
+      rarity: 'uncommon',  // 优秀(绿色)
+      value: 5,
+      stackSize: 99,
+      currentStack: 2,
+      iconColor: '#00FF00'
+    });
+
+    const rustySword = new Item({
+      id: 'rusty_sword',
+      name: '生锈的铁剑',
+      description: '一把老旧的铁剑，攻击力+5',
+      type: 'weapon',
+      rarity: 'rare',  // 稀有(蓝色)
+      value: 10,
+      stackSize: 1,
+      iconColor: '#C0C0C0'
+    });
+
+    const leatherArmor = new Item({
+      id: 'leather_armor',
+      name: '皮甲',
+      description: '简单的皮革护甲，防御力+3',
+      type: 'equipment',
+      rarity: 'epic',  // 史诗(紫色)
+      value: 15,
+      stackSize: 1,
+      iconColor: '#8B4513'
+    });
+
+    // 添加到道具管理器
+    this.itemManager.addItem(wood);
+    this.itemManager.addItem(stone);
+    this.itemManager.addItem(herb);
+    this.itemManager.addItem(rustySword);
+    this.itemManager.addItem(leatherArmor);
   }
 
   /**
