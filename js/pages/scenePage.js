@@ -14,6 +14,13 @@ export default class ScenePage {
     this.shakeIntensity = 0;
     this.shakeSpeed = 0.02;
 
+    // 行走动画
+    this.walkIntensity = 0;
+    this.walkPhase = 0;
+    this.walkSpeed = 0.008;
+    this.totalSteps = 0;
+    this.currentStep = 0;
+
     // 底部导航栏选项
     this.navItems = [
       { text: '采集', action: 'collect' },
@@ -37,6 +44,23 @@ export default class ScenePage {
       this.shakeIntensity -= this.shakeSpeed;
       if (this.shakeIntensity < 0) {
         this.shakeIntensity = 0;
+      }
+    }
+
+    // 行走动画：连续触发
+    if (this.totalSteps > 0) {
+      if (this.walkIntensity <= 0) {
+        this.currentStep++;
+        if (this.currentStep <= this.totalSteps) {
+          this.walkIntensity = 1;
+        }
+      }
+
+      if (this.walkIntensity > 0) {
+        this.walkIntensity -= this.walkSpeed;
+        if (this.walkIntensity < 0) {
+          this.walkIntensity = 0;
+        }
       }
     }
   }
@@ -74,7 +98,9 @@ export default class ScenePage {
         break;
       case 'forward':
         console.log('执行前进');
-        // TODO: 执行前进逻辑
+        this.totalSteps = 2;
+        this.currentStep = 0;
+        this.walkIntensity = 1;
         break;
       case 'back':
         console.log('返回外出页面');
@@ -91,8 +117,15 @@ export default class ScenePage {
     const centerY = canvas.height / 2;
 
     // 应用抖动偏移
-    const offsetX = (Math.random() - 0.5) * this.shakeIntensity * 4;
-    const offsetY = (Math.random() - 0.5) * this.shakeIntensity * 4;
+    let offsetX = (Math.random() - 0.5) * this.shakeIntensity * 4;
+    let offsetY = (Math.random() - 0.5) * this.shakeIntensity * 4;
+
+    // 应用行走晃动（上下摆动）
+    if (this.walkIntensity > 0) {
+      this.walkPhase += 0.2;
+      const walkOffsetY = Math.sin(this.walkPhase) * this.walkIntensity * 8;
+      offsetY += walkOffsetY;
+    }
 
     ctx.save();
     ctx.translate(offsetX, offsetY);
