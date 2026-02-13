@@ -100,32 +100,108 @@ export default class BattlePage {
    * 渲染内容区域
    */
   renderContent(ctx, centerX, centerY) {
-    let contentText = '';
-    let subText = '';
-
     switch (this.currentTab) {
       case 'venture':
-        contentText = '冒险';
-        subText = '探索未知的区域...';
+        this.renderVentureTab(ctx, centerX, centerY);
         break;
       case 'collect':
-        contentText = '采集';
-        subText = '收集有用的资源...';
+        this.renderCollectTab(ctx, centerX, centerY);
         break;
       case 'rest':
-        contentText = '修整';
-        subText = '整理装备和物品...';
+        this.renderRestTab(ctx, centerX, centerY);
         break;
     }
+  }
 
-    // 绘制内容标题
+  /**
+   * 渲染冒险标签
+   */
+  renderVentureTab(ctx, centerX, centerY) {
+    const contentText = '冒险';
+    const subText = '探索未知的区域...';
+
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 48px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(contentText, centerX, centerY - 30);
 
-    // 绘制副标题
+    ctx.fillStyle = '#aaaaaa';
+    ctx.font = '24px sans-serif';
+    ctx.fillText(subText, centerX, centerY + 30);
+  }
+
+  /**
+   * 渲染采集标签（地图选择）
+   */
+  renderCollectTab(ctx, centerX, centerY) {
+    const contentText = '选择地点';
+
+    // 绘制标题
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 32px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(contentText, centerX, 100);
+
+    // 获取所有地图
+    const maps = this.main.mapManager.getAllMaps();
+
+    // 地图选项布局
+    const optionHeight = 80;
+    const optionGap = 12;
+    const optionWidth = 280;
+    const startX = centerX - optionWidth / 2;
+    const startY = 150;
+
+    maps.forEach((map, index) => {
+      const optionY = startY + index * (optionHeight + optionGap);
+
+      // 绘制地图选项背景
+      ctx.fillStyle = map.backgroundColor;
+      ctx.strokeStyle = '#666666';
+      ctx.lineWidth = 2;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(startX, optionY, optionWidth, optionHeight, [8, 8, 8, 8]);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // 绘制地图名称
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 20px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText(map.name, startX + 15, optionY + 15);
+
+      // 绘制地图描述
+      ctx.fillStyle = '#cccccc';
+      ctx.font = '16px sans-serif';
+      ctx.fillText(map.description, startX + 15, optionY + 45);
+
+      // 绘制推荐等级
+      ctx.fillStyle = '#ffd700';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(`Lv.${map.level}`, startX + optionWidth - 15, optionY + 15);
+    });
+  }
+
+  /**
+   * 渲染修整标签
+   */
+  renderRestTab(ctx, centerX, centerY) {
+    const contentText = '修整';
+    const subText = '整理装备和物品...';
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 48px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(contentText, centerX, centerY - 30);
+
     ctx.fillStyle = '#aaaaaa';
     ctx.font = '24px sans-serif';
     ctx.fillText(subText, centerX, centerY + 30);
