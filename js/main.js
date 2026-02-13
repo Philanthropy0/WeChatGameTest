@@ -1,5 +1,6 @@
 import './render'; // 初始化Canvas
 import AudioManager from './runtime/audio'; // 导入音频管理器
+import { MapManager } from './map'; // 导入地图系统
 import Item, { ItemManager } from './item'; // 导入道具系统
 import MenuPage from './pages/menuPage';
 import GameHomePage from './pages/gameHomePage';
@@ -62,6 +63,10 @@ export default class Main {
     // 道具管理器
     this.itemManager = new ItemManager();
     this.initializeItems();  // 初始化初始道具
+
+    // 地图管理器
+    this.mapManager = new MapManager();
+    this.initializeMaps();  // 初始化地图
 
     // 页面过渡效果
     this.transitionState = 'none';  // 'none', 'fadeout', 'fadein'
@@ -155,6 +160,42 @@ export default class Main {
     this.itemManager.addItem(herb);
     this.itemManager.addItem(rustySword);
     this.itemManager.addItem(leatherArmor);
+  }
+
+  /**
+   * 初始化地图
+   */
+  initializeMaps() {
+    // 木屋周围地图
+    const cabinSurroundings = this.mapManager.registerMap({
+      id: 'cabin_surroundings',
+      name: '木屋周围',
+      description: '安全的森林空地，你的庇护所',
+      type: 'outdoor',
+      level: 1,
+      backgroundColor: '#2a4a2a',
+      events: [
+        { type: 'collect', weight: 5 },  // 采集事件
+        { type: 'battle', weight: 3 }   // 战斗事件
+      ]
+    });
+
+    // 池塘地图
+    const pond = this.mapManager.registerMap({
+      id: 'pond',
+      name: '池塘',
+      description: '平静的水面，可以获取水资源',
+      type: 'outdoor',
+      level: 2,
+      backgroundColor: '#1a3a4a',
+      events: [
+        { type: 'collect', weight: 4 },  // 采集事件
+        { type: 'battle', weight: 4 }   // 战斗事件
+      ]
+    });
+
+    // 初始在木屋周围
+    this.mapManager.enterMap('cabin_surroundings');
   }
 
   /**
