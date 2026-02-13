@@ -143,17 +143,41 @@ export default class CharacterPage {
   renderNavBar(ctx) {
     const navHeight = 80;
     const navY = canvas.height - navHeight;
+    const cornerRadius = 15;
+
+    ctx.save();
+
+    // 绘制带圆角的导航栏
+    ctx.beginPath();
+    ctx.moveTo(0, navY);
+    ctx.lineTo(cornerRadius, navY);
+    ctx.quadraticCurveTo(0, navY, 0, navY + cornerRadius);
+    ctx.lineTo(0, canvas.height);
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.lineTo(canvas.width, navY + cornerRadius);
+    ctx.quadraticCurveTo(canvas.width, navY, canvas.width - cornerRadius, navY);
+    ctx.closePath();
+
     ctx.fillStyle = '#333333';
-    ctx.fillRect(0, navY, canvas.width, navHeight);
+    ctx.fill();
+
+    // 绘制边框
     ctx.strokeStyle = '#666666';
     ctx.lineWidth = 2;
-    ctx.strokeRect(0, navY, canvas.width, navHeight);
+    ctx.stroke();
+
+    ctx.restore();
+
+    // 绘制四个选项
     const itemWidth = canvas.width / 4;
     this.navItems.forEach((item, index) => {
       const itemCenterX = index * itemWidth + itemWidth / 2;
       const itemCenterY = navY + navHeight / 2;
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '24px sans-serif';
+
+      // 当前选中的标签显示为金色，其他为白色
+      const isSelected = this.navItems[index].action === this.currentTab;
+      ctx.fillStyle = isSelected ? '#ffd700' : '#ffffff';
+      ctx.font = isSelected ? 'bold 24px sans-serif' : '24px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(item.text, itemCenterX, itemCenterY);

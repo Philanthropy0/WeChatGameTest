@@ -1,18 +1,28 @@
 /**
- * 战斗页面
+ * 战斗页面（外出）
  */
 export default class BattlePage {
   constructor(main) {
     this.main = main;
     this.SUB_PAGE = main.SUB_PAGE;  // 保存子页面常量引用
 
+    // 当前标签
+    this.currentTab = 'venture';  // venture: 冒险, collect: 采集, rest: 修整
+
     // 底部导航栏选项
     this.navItems = [
-      { text: '冒险', action: 'adventure' },
+      { text: '冒险', action: 'venture' },
       { text: '采集', action: 'collect' },
-      { text: '休整', action: 'rest' },
+      { text: '修整', action: 'rest' },
       { text: '返回', action: 'back' }
     ];
+  }
+
+  /**
+   * 更新页面
+   */
+  update() {
+    // 暂时没有需要更新的动画
   }
 
   /**
@@ -40,16 +50,19 @@ export default class BattlePage {
    * 处理导航点击
    */
   handleNavClick(item) {
-    console.log('战斗页面点击了导航:', item.text);
+    console.log('外出页面点击了导航:', item.text);
     switch (item.action) {
-      case 'adventure':
+      case 'venture':
+        this.currentTab = 'venture';
+        break;
       case 'collect':
+        this.currentTab = 'collect';
+        break;
       case 'rest':
-        console.log('功能开发中');
+        this.currentTab = 'rest';
         break;
       case 'back':
         console.log('返回游戏主页');
-        // 启动子页面过渡效果
         this.main.startSubPageTransition(this.main.SUB_PAGE.GAME_HOME);
         break;
     }
@@ -74,16 +87,48 @@ export default class BattlePage {
     ctx.font = 'bold 36px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    ctx.fillText('战斗', centerX, 50);
+    ctx.fillText('外出', centerX, 50);
 
-    // 绘制占位文本
-    ctx.fillStyle = '#888888';
-    ctx.font = '28px sans-serif';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('敬请期待', centerX, centerY);
+    // 根据当前标签绘制内容
+    this.renderContent(ctx, centerX, centerY);
 
     // 绘制底部导航栏
     this.renderNavBar(ctx);
+  }
+
+  /**
+   * 渲染内容区域
+   */
+  renderContent(ctx, centerX, centerY) {
+    let contentText = '';
+    let subText = '';
+
+    switch (this.currentTab) {
+      case 'venture':
+        contentText = '冒险';
+        subText = '探索未知的区域...';
+        break;
+      case 'collect':
+        contentText = '采集';
+        subText = '收集有用的资源...';
+        break;
+      case 'rest':
+        contentText = '修整';
+        subText = '整理装备和物品...';
+        break;
+    }
+
+    // 绘制内容标题
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 48px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(contentText, centerX, centerY - 30);
+
+    // 绘制副标题
+    ctx.fillStyle = '#aaaaaa';
+    ctx.font = '24px sans-serif';
+    ctx.fillText(subText, centerX, centerY + 30);
   }
 
   /**
@@ -123,8 +168,10 @@ export default class BattlePage {
       const itemCenterX = index * itemWidth + itemWidth / 2;
       const itemCenterY = navY + navHeight / 2;
 
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '24px sans-serif';
+      // 当前选中的标签显示为金色，其他为白色
+      const isSelected = this.navItems[index].action === this.currentTab;
+      ctx.fillStyle = isSelected ? '#ffd700' : '#ffffff';
+      ctx.font = isSelected ? 'bold 24px sans-serif' : '24px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(item.text, itemCenterX, itemCenterY);
